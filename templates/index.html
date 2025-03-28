@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Recommendation</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px #aaa;
+            margin: auto;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .job-list {
+            margin-top: 20px;
+        }
+        .job-item {
+            padding: 10px;
+            background: #e3f2fd;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Find Your Dream Job</h2>
+        <p>Enter your qualification to get job recommendations.</p>
+        <form id="jobForm">
+            <input type="text" id="qualification" name="qualification" placeholder="Enter your qualification..." required>
+            <button type="submit">Find Jobs</button>
+        </form>
+
+        <div id="results" class="job-list"></div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#jobForm").submit(function (event) {
+                event.preventDefault();
+                var qualification = $("#qualification").val();
+                
+                $.post("/recommend", { qualification: qualification }, function (data) {
+                    $("#results").html(""); 
+                    
+                    if (data.jobs && data.jobs.length > 0) {
+                        data.jobs.forEach(function (job) {
+                            $("#results").append(
+                                `<div class='job-item'>
+                                    <h3>${job['Job Title']}</h3>
+                                    <p><strong>Company:</strong> ${job.Company}</p>
+                                    <p><strong>Location:</strong> ${job.Location}</p>
+                                    <p><strong>Salary:</strong> ${job.Salary || "Not specified"}</p>
+                                    <p><strong>Type:</strong> ${job['Job Type']}</p>
+                                </div>`
+                            );
+                        });
+                    } else {
+                        $("#results").html("<p>No matching jobs found.</p>");
+                    }
+                }).fail(function () {
+                    $("#results").html("<p>Error retrieving job recommendations.</p>");
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
